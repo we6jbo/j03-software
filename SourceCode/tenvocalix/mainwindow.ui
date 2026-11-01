@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry"><rect><x>0</x><y>0</y><width>680</width><height>430</height></rect></property>
+  <property name="minimumSize"><size><width>430</width><height>310</height></size></property>
+  <property name="windowTitle"><string>Tenvocalix</string></property>
+  <property name="styleSheet"><string notr="true">QMainWindow,QWidget#centralwidget {background:#111827;color:#f9fafb;} QLabel#titleLabel {font-size:21px;font-weight:700;color:#93c5fd;} QLabel#modeLabel {font-size:14px;font-weight:700;letter-spacing:2px;color:#a5b4fc;} QLabel#mainDisplay {font-size:67px;font-weight:750;color:#f9fafb;} QLabel#provenanceLabel {font-size:11px;color:#9ca3af;} QPushButton {background:#2563eb;color:white;padding:13px 20px;border:0;border-radius:9px;font-size:15px;font-weight:650;} QPushButton:hover:enabled {background:#3b82f6;} QPushButton:disabled {background:#374151;color:#9ca3af;} QPushButton#screenshotButton {background:#374151;font-size:12px;padding:10px;} QPushButton#screenshotButton:hover {background:#4b5563;}</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin"><number>25</number></property><property name="topMargin"><number>20</number></property><property name="rightMargin"><number>25</number></property><property name="bottomMargin"><number>18</number></property>
+    <item><widget class="QLabel" name="titleLabel"><property name="text"><string>TENVOCALIX</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
+    <item><spacer name="upperSpacer"><property name="orientation"><enum>Qt::Vertical</enum></property><property name="sizeHint" stdset="0"><size><width>20</width><height>40</height></size></property></spacer></item>
+    <item><widget class="QLabel" name="modeLabel"><property name="text"><string>CURRENT TIME</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
+    <item><widget class="QLabel" name="mainDisplay"><property name="text"><string>12:00:00 PM</string></property><property name="alignment"><set>Qt::AlignCenter</set></property><property name="minimumSize"><size><width>0</width><height>110</height></size></property></widget></item>
+    <item><layout class="QHBoxLayout" name="buttonLayout"><item><spacer name="leftSpacer"><property name="orientation"><enum>Qt::Horizontal</enum></property></spacer></item><item><widget class="QPushButton" name="startButton"><property name="text"><string>Start Countdown</string></property></widget></item><item><spacer name="rightSpacer"><property name="orientation"><enum>Qt::Horizontal</enum></property></spacer></item></layout></item>
+    <item><spacer name="lowerSpacer"><property name="orientation"><enum>Qt::Vertical</enum></property><property name="sizeHint" stdset="0"><size><width>20</width><height>45</height></size></property></spacer></item>
+    <item><layout class="QHBoxLayout" name="footerLayout"><item><widget class="QLabel" name="provenanceLabel"><property name="text"><string>Version 0.1.0</string></property></widget></item><item><spacer name="footerSpacer"><property name="orientation"><enum>Qt::Horizontal</enum></property></spacer></item><item><widget class="QPushButton" name="screenshotButton"><property name="text"><string>Screenshot</string></property></widget></item></layout></item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
