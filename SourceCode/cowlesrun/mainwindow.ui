@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry"><rect><x>0</x><y>0</y><width>780</width><height>490</height></rect></property>
+  <property name="windowTitle"><string>cowlesrun | Four-Day Summit Average</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item><layout class="QHBoxLayout" name="headerLayout">
+     <item><widget class="QLabel" name="mountainImage"><property name="minimumSize"><size><width>232</width><height>146</height></size></property><property name="alignment"><set>Qt::AlignCenter</set></property><property name="text"><string>Killdeer Mountains illustration</string></property></widget></item>
+     <item><layout class="QVBoxLayout" name="headingLayout">
+       <item><widget class="QLabel" name="titleLabel"><property name="text"><string>Cowles Run</string></property><property name="styleSheet"><string>font-size: 27px; font-weight: bold;</string></property></widget></item>
+       <item><widget class="QLabel" name="subtitleLabel"><property name="text"><string>Track four climbs to the top of Cowles Mountain</string></property><property name="wordWrap"><bool>true</bool></property></widget></item>
+       <item><widget class="QLabel" name="imageCaption"><property name="text"><string>Artistic illustration: Killdeer Mountains, North Dakota</string></property><property name="wordWrap"><bool>true</bool></property><property name="styleSheet"><string>color: #777; font-size: 11px;</string></property></widget></item>
+      </layout></item>
+    </layout></item>
+    <item><widget class="QLabel" name="instructionLabel"><property name="text"><string>Enter your uphill times as MM:SS or HH:MM:SS. Blank days are excluded from the average.</string></property><property name="wordWrap"><bool>true</bool></property></widget></item>
+    <item><layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0"><widget class="QLabel" name="run1Label"><property name="text"><string>Day 1</string></property></widget></item>
+     <item row="0" column="1"><widget class="QLineEdit" name="run1Edit"><property name="placeholderText"><string>e.g. 32:30</string></property><property name="maxLength"><number>12</number></property></widget></item>
+     <item row="1" column="0"><widget class="QLabel" name="run2Label"><property name="text"><string>Day 2</string></property></widget></item>
+     <item row="1" column="1"><widget class="QLineEdit" name="run2Edit"><property name="placeholderText"><string>e.g. 31:45</string></property><property name="maxLength"><number>12</number></property></widget></item>
+     <item row="2" column="0"><widget class="QLabel" name="run3Label"><property name="text"><string>Day 3</string></property></widget></item>
+     <item row="2" column="1"><widget class="QLineEdit" name="run3Edit"><property name="placeholderText"><string>e.g. 30:15</string></property><property name="maxLength"><number>12</number></property></widget></item>
+     <item row="3" column="0"><widget class="QLabel" name="run4Label"><property name="text"><string>Day 4</string></property></widget></item>
+     <item row="3" column="1"><widget class="QLineEdit" name="run4Edit"><property name="placeholderText"><string>e.g. 29:30</string></property><property name="maxLength"><number>12</number></property></widget></item>
+    </layout></item>
+    <item><layout class="QHBoxLayout" name="buttonLayout">
+     <item><widget class="QPushButton" name="calculateButton"><property name="text"><string>Calculate Average</string></property></widget></item>
+     <item><widget class="QPushButton" name="clearButton"><property name="text"><string>Clear Entries</string></property></widget></item>
+    </layout></item>
+    <item><widget class="QLabel" name="averageLabel"><property name="text"><string>Average: --:--</string></property><property name="alignment"><set>Qt::AlignCenter</set></property><property name="styleSheet"><string>font-size: 21px; font-weight: bold; padding: 12px;</string></property></widget></item>
+    <item><spacer name="verticalSpacer"><property name="orientation"><enum>Qt::Vertical</enum></property><property name="sizeHint" stdset="0"><size><width>20</width><height>12</height></size></property></spacer></item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar"/>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
