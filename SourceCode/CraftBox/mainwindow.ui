@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry"><rect><x>0</x><y>0</y><width>720</width><height>510</height></rect></property>
+  <property name="windowTitle"><string>CraftBox | Three Make-Believe Candies</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet"><string notr="true">QWidget#centralwidget { background: #f5f0fc; } QLabel { color: #312344; } QPushButton#openButton { background: #7551bd; color: white; border-radius: 18px; font-size: 26px; font-weight: bold; padding: 28px; } QPushButton#openButton:hover { background: #5a37a4; } QPushButton#screenshotButton { background: #e0d7ef; border: 1px solid #aa99c4; border-radius: 7px; padding: 9px; color: #312344; } QLabel#candyOne, QLabel#candyTwo, QLabel#candyThree { background: white; border-radius: 12px; padding: 11px; font-size: 18px; }</string></property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin"><number>24</number></property>
+    <property name="topMargin"><number>24</number></property>
+    <property name="rightMargin"><number>24</number></property>
+    <property name="bottomMargin"><number>16</number></property>
+    <item><widget class="QLabel" name="titleLabel"><property name="text"><string>CraftBox</string></property><property name="alignment"><set>Qt::AlignCenter</set></property><property name="styleSheet"><string notr="true">font-size: 30px; font-weight: bold;</string></property></widget></item>
+    <item><widget class="QLabel" name="introLabel"><property name="text"><string>Click the mystery box and meet three imaginary treats.</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
+    <item><widget class="QPushButton" name="openButton"><property name="text"><string>🎁  Open the Mystery Box</string></property><property name="minimumSize"><size><width>0</width><height>110</height></size></property></widget></item>
+    <item><widget class="QLabel" name="resultHeading"><property name="text"><string>Your surprises will appear here!</string></property><property name="alignment"><set>Qt::AlignCenter</set></property><property name="styleSheet"><string notr="true">font-size: 17px; font-weight: bold;</string></property></widget></item>
+    <item><widget class="QLabel" name="candyOne"><property name="text"><string>✦  ? ? ?</string></property></widget></item>
+    <item><widget class="QLabel" name="candyTwo"><property name="text"><string>✿  ? ? ?</string></property></widget></item>
+    <item><widget class="QLabel" name="candyThree"><property name="text"><string>◆  ? ? ?</string></property></widget></item>
+    <item><spacer name="verticalSpacer"><property name="orientation"><enum>Qt::Vertical</enum></property><property name="sizeHint" stdset="0"><size><width>20</width><height>12</height></size></property></spacer></item>
+    <item><layout class="QHBoxLayout" name="bottomLayout"><item><widget class="QLabel" name="captureNote"><property name="text"><string>Screenshot is local only; approval required before publication.</string></property></widget></item><item><widget class="QPushButton" name="screenshotButton"><property name="text"><string>Screenshot</string></property></widget></item></layout></item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/><connections/>
+</ui>
