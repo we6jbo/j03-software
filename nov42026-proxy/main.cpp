@@ -1,9 +1,21 @@
-// Findagrave Qt Proxy: teaching-oriented annotated revision of version 2.2.5.
-// Copyright remains with the original source author(s).
-// Proposed licensing choices, pending author confirmation:
-// SPDX-License-Identifier: Apache-2.0 OR MIT OR GPL-3.0-only
-// NOTE: "GPT3" was interpreted as GPLv3. Verify before external publication.
+// findagrave Qt proxy v2.2.5
+// Date: Nov 6, 2026
+// Author: Jeremiah B. O'Neal
 //
+// Copyright (C) 2026 Jeremiah B. O'Neal
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // WHAT TO READ FIRST
 //   recommend()                 -> blue auto-push / timeout recheck / opt-in gate
 //   parseNewestHtml()           -> optional grouped human-review JSON
