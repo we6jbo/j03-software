@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(nov42026_proxy VERSION 2.2.5 LANGUAGES CXX)
+project(nov42026_proxy VERSION 2.2.7 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_AUTOMOC ON)
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Network)

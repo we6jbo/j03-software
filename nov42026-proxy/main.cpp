@@ -1,4 +1,4 @@
-// findagrave Qt proxy v2.2.5
+// findagrave Qt proxy v2.2.7
 // Date: Nov 6, 2026
 // Author: Jeremiah B. O'Neal
 //
@@ -58,6 +58,8 @@
 #include <QMessageBox>
 #include <QCloseEvent>
 #include <QPointer>
+#include <QMap>
+#include <QSet>
 #include <QTimer>
 #include <QElapsedTimer>
 #include "InfoArtRecorder.h"
@@ -88,7 +90,7 @@ static const QString pages = root+"/proxy-pages";
 static const QString journal = root+"/proxy123.txt";
 static const QString settingsPath = conf+"/settings.json";
 static const QString rulesPath = conf+"/rules.json";
-static const QString appVersion="2.2.5";
+static const QString appVersion="2.2.7";
 static const QString solverPath=root+"/useful/proxysolver.txt";
 static const QString vibePath=root+"/useful/vibefinds.txt";
 // SECURITY: Never store proxy credentials in a Git-tracked source file.
@@ -502,6 +504,51 @@ public:
    QSaveFile out(root+"/diagnostics/proxy.json");
    if(out.open(QIODevice::WriteOnly)){out.write(QJsonDocument(d).toJson(QJsonDocument::Indented));out.commit();}
  }
+ // v2.2.6: when a new_lead handoff arrives with an empty URL, autofill it from
+ // memorial URLs already collected in joneal/ (done-*.json payloads, top-level
+ // url fields, and related_people[]), skipping URLs the scanner already
+ // visited (findagrave-scan.json) or queued (useful/state.json).
+ static QPair<QString,QString> harvestJonealLead(){
+   QMap<QString,QString> names;
+   QDir d(root+"/joneal");if(!d.exists())return {};
+   for(const auto &f:d.entryList({"*.json"},QDir::Files,QDir::Name)){
+     QFile fp(d.filePath(f));if(!fp.open(QIODevice::ReadOnly|QIODevice::Text))continue;
+     QJsonObject o=QJsonDocument::fromJson(fp.readAll()).object();if(o.isEmpty())continue;
+     auto note=[&](const QString &u,const QString &n){
+       if(!u.startsWith("http"))return;
+       if(!names.contains(u))names[u]=n;
+       else if(!n.isEmpty()&&names[u].isEmpty())names[u]=n;
+     };
+     note(o.value("url").toString(),o.value("name").toString());
+     QJsonObject p=o.value("payload").toObject();
+     note(p.value("url").toString(),p.value("name").toString());
+     for(const auto &v:p.value("related_people").toArray()){
+       QJsonObject r=v.toObject();note(r.value("url").toString(),r.value("name").toString());
+     }
+   }
+   QSet<QString> seen;
+   auto addSeen=[&](const QJsonObject &o,const QString &key){
+     for(const auto &v:o.value(key).toArray()){QString u=v.toObject().value("url").toString();if(!u.isEmpty())seen.insert(u);}
+   };
+   QFile sf(root+"/findagrave-scan.json");
+   if(sf.open(QIODevice::ReadOnly|QIODevice::Text)){
+     QJsonObject sc=QJsonDocument::fromJson(sf.readAll()).object();
+     addSeen(sc,"visits");
+     for(const auto &v:sc.value("records").toArray()){QString u=v.toObject().value("url").toString();if(!u.isEmpty())seen.insert(u);}
+   }
+   QFile qf(root+"/useful/state.json");
+   if(qf.open(QIODevice::ReadOnly|QIODevice::Text))addSeen(QJsonDocument::fromJson(qf.readAll()).object(),"queue");
+   QStringList cands;
+   for(auto it=names.begin();it!=names.end();++it)if(!seen.contains(it.key()))cands<<it.key();
+   cands.sort();
+   if(cands.isEmpty())return {};
+   QString u=cands.first(),n=names.value(u);
+   if(n.isEmpty()){
+     QRegularExpression re("/memorial/\\d+/([^/?#]+)");auto m=re.match(u);
+     if(m.hasMatch())n=m.captured(1).replace('-',' ');
+   }
+   return {u,n};
+ }
  void pollHandoffs(){
    QDir d(root+"/joneal");if(!d.exists())return;
    QString best;
@@ -511,9 +558,26 @@ public:
    QJsonObject o=QJsonDocument::fromJson(f.readAll()).object();
    currentHandoffFile=best;currentHandoffId=o.value("id").toString();currentHandoffKind=o.value("kind").toString();
    hoId->setText(best+"  id="+currentHandoffId+"  kind="+currentHandoffKind);
-   hoPrompt->setPlainText(o.value("prompt").toString()+"\nURL: "+o.value("url").toString());
-   currentHandoffUrl=o.value("url").toString();hoNeedUrl->setText("URL needed: "+currentHandoffUrl);
-   hoInput->clear();hoStatus->setText("Waiting for your input");
+   currentHandoffUrl=o.value("url").toString();
+   if(currentHandoffKind=="new_lead"&&currentHandoffUrl.isEmpty()){
+     auto lead=harvestJonealLead();
+     if(!lead.first.isEmpty()){
+       currentHandoffUrl=lead.first;
+       QJsonObject pre;pre["url"]=lead.first;pre["name"]=lead.second;
+       hoInput->setPlainText(QString::fromUtf8(QJsonDocument(pre).toJson(QJsonDocument::Compact)));
+       addEvent("handoff_url_autofilled",currentHandoffId+" -> "+currentHandoffUrl);
+     }
+   }
+   hoPrompt->setPlainText(o.value("prompt").toString()+"\nURL: "+currentHandoffUrl);
+   hoNeedUrl->setText("URL needed: "+(currentHandoffUrl.isEmpty()?"(none)":currentHandoffUrl));
+   if(hoInput->toPlainText().isEmpty())hoInput->clear();hoStatus->setText("Waiting for your input");
+   // v2.2.7 auto-pipeline: when the handoff has a URL (from the file or autofilled from
+   // joneal-collected URLs), automatically fetch it via wget; finishFetchCheck then
+   // auto-parses, and parseNewestHtml writes the parsed import + a Vibe directive.
+   if(!currentHandoffUrl.isEmpty()&&settings.value("handoff_auto_pipeline").toBool(true)){
+     addEvent("pipeline_kickoff",currentHandoffId+" "+currentHandoffUrl);
+     QTimer::singleShot(1500,this,[this]{if(!currentHandoffUrl.isEmpty()&&!automaticFeaturesPaused)fetchNeededUrl();});
+   }
    recommend(fetchBtn,hoTabIndex);
    addEvent("handoff_presented",currentHandoffId);
    // Desktop notification so the request is seen even when the WM blocks focus stealing.
@@ -560,6 +624,7 @@ public:
    if(!waitingClient.isNull())next.append("A response is awaiting review in tab 1 (Approve/Reject).");
    if(hp>0)next.append("Tab 4: "+QString::number(hp)+" handoff request(s) waiting - fetch/parse/submit in '4. Human Handoff'.");
    if(ql>0)next.append("Queue has "+QString::number(ql)+" URL(s) - run ./findagrave to attempt the next workable one, or add more in tab '5. Queue'.");
+   {QFile vf(root+"/useful/vibe-help.json");if(vf.open(QIODevice::ReadOnly|QIODevice::Text)){QJsonObject v=QJsonDocument::fromJson(vf.readAll()).object();if(v.value("status").toString()=="proxy_parsed_handoff")next.append("Vibe: proxy parsed a handoff -> "+v.value("parsed_import").toString()+". Review it, then run ./findagrave --import-json <that file>, then ./findagrave again for the next scan. Details in useful/vibe-help.json.");}}
    if(next.isEmpty())next.append("Nothing pending right now: add leads in tab 5, capture blocked seeds in tab 4, or research via plan.md sources.");
    d["next"]=next;d["handoff_pending"]=hp;d["queue_length"]=ql;d["waiting_for_review"]=!waitingClient.isNull();
    QSaveFile out(root+"/whatsnext.json");if(out.open(QIODevice::WriteOnly)){out.write(QJsonDocument(d).toJson(QJsonDocument::Indented));out.commit();}
@@ -617,6 +682,7 @@ public:
    addEvent(ok?"wget_done":"wget_failed",currentHandoffUrl);
    hoStatus->setText(ok?"Saved html/"+fname+"; next: Parse newest saved HTML":"Fetch failed; capture in browser instead");
    if(ok)recommend(parseBtn,hoTabIndex);
+   if(ok&&settings.value("handoff_auto_pipeline").toBool(true))QTimer::singleShot(500,this,[this]{if(!automaticFeaturesPaused)parseNewestHtml();});
  }
  void parseNewestHtml(){
    if(automaticFeaturesPaused)return;
@@ -647,6 +713,17 @@ public:
    hoInput->setPlainText(QJsonDocument(imp).toJson(QJsonDocument::Indented));
    hoStatus->setText("Parsed html/"+fname+" into import JSON ("+name+") — review, edit if needed, then Submit");
    addEvent("html_parsed",fname);
+   // v2.2.7: persist the parsed import and tell Mistral Vibe exactly what to do next.
+   if(!currentHandoffUrl.isEmpty()){
+     QRegularExpression re("/memorial/(\\d+)");auto m=re.match(currentHandoffUrl);
+     QString mid=m.hasMatch()?m.captured(1):QString::fromLatin1(QCryptographicHash::hash(currentHandoffUrl.toUtf8(),QCryptographicHash::Sha256).toHex().left(12));
+     QString ppath=root+"/html/parsed-"+mid+".json";
+     {QSaveFile pf(ppath);if(pf.open(QIODevice::WriteOnly)){pf.write(QJsonDocument(imp).toJson(QJsonDocument::Indented));pf.commit();}}
+     QJsonObject vibe;vibe["status"]="proxy_parsed_handoff";vibe["handoff_id"]=currentHandoffId;vibe["url"]=currentHandoffUrl;vibe["parsed_import"]=ppath;vibe["source_html"]=root+"/html/"+fname;vibe["updated_at"]=stamp();
+     vibe["instruction"]="Mistral Vibe: the proxy fetched and parsed this handoff URL. Review the UNVERIFIED parsed import at "+ppath+" against html/"+fname+" (or your browser). If acceptable run: ./findagrave --import-json "+ppath+" ; then run ./findagrave again for the next queued scan. If not acceptable, capture in the browser and submit via tab 4. Never bypass robots.txt/anti-bot.";
+     saveObj(root+"/useful/vibe-help.json",vibe);
+     addEvent("vibe_directive_written",ppath);
+   }
    // (3) OPTIONAL GROUPED HUMAN REVIEW. Uncomment this AND the hoBtn
    // exclusion in recommend() to require a person to approve submission.
    // writeHumanInteractionReview(imp);
